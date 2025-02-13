@@ -16,6 +16,7 @@
 $CredentialSubject = 'repo:paul-mccormack/actions-entra-auth:ref:refs/heads/main'
 
 # External Idp issuing the token.  Must match the "issuer" claim of the token being presented to Entra
+# Currently set for GitHub Actions.
 $CredentialIssuer = 'https://token.actions.githubusercontent.com'
 
 # Login to Azure
