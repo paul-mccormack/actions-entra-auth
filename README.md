@@ -1,6 +1,6 @@
 # Create an Entra ID service principal with federated credentials and a role assignment for use with GitHub Actions
 
-This PowerShell script was written to create an Entra service principal, role assignment at a scope selected during execution and a federated credential for use with GitHub Actions with Azure.
+This PowerShell script was written to create an Entra service principal, role assignment at a scope selected during execution and a federated credential for use with GitHub Actions and deployments to Azure.
 
 Although intended to use with GitHub Actions it could be re-purposed to set-up OIDC connections between Entra and other providers.
 
