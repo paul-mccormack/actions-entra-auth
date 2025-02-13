@@ -130,9 +130,10 @@ elseif ($scope -contains "Subscription") {
     }
 }
 else {
-    $assignmentScope = Get-AzResourceGroup -Name $scopeName | Select-Object ResourceId
+    $assignmentScope = Get-AzSubscription -SubscriptionName $scopeName.Name  3> $null | Select-Object Id
+    $rgScope = Get-AzResourceGroup -Name $scopeName | Select-Object ResourceId
     try {
-        New-AzRoleAssignment -ObjectId $appId -RoleDefinitionName $roleName -Scope $assignmentScope.ResourceId
+        New-AzRoleAssignment -ObjectId $appId -RoleDefinitionName $roleName -Scope $rgScope.ResourceId
     }
     catch {
         Write-Host "You do not have the required permissions to create a role assignment at this scope. Check your access on the IAM blade in the portal"
