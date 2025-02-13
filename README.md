@@ -4,6 +4,8 @@ This PowerShell script was written to create an Entra service principal, role as
 
 Although intended to use with GitHub Actions it could be re-purposed to set-up OIDC connections between Entra and other providers.
 
+Click the [link](https://github.com/paul-mccormack/actions-entra-auth/blob/main/FedCredGitHubActions.ps1) to view the script.
+
 ## Basic operation
 
 Set the ```$CredentialSubject``` variable prior to running and ensure you have the appropiate permissions at the deployment scope you are going to choose.  So if you need to PIM to get that do it before running the script.
