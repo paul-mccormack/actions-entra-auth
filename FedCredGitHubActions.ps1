@@ -5,9 +5,9 @@
 # Although this script was designed for GitHub Actions it could very easily be repurposed for other purposes.
 #
 # Check if Az Powershell modules are installed and if not install them
- if ( -not (Get-Module Az -ListAvailable)){
+ if ( -not (Get-Module Az.* -ListAvailable)){
      Install-Module -Name Az -Repository PSGallery -Force
-     Import-Module -Name Az
+     #Import-Module -Name Az
  }
 
 # This is the subject identifier and must match the "sub" claim within the token presented to Entra by the external identity provider.
@@ -85,7 +85,7 @@ else {
     $scopeName = Read-Host "Enter Resource Group Name"
     try {
         $subScope = Get-AzSubscription -SubscriptionName $subName.Name  3> $null | Select-Object Id
-        Set-AzContext -SubscriptionId $subScope.Id
+        Set-AzContext -SubscriptionId $subScope.Id 3> $null
         Get-AzResourceGroup -Name $scopeName -ErrorAction stop
     }
     catch {
@@ -153,6 +153,6 @@ Write-Host "AZURE_CLIENT_ID = $($sp.AppId)"
 Write-Host "AZURE_TENANT_ID = $($tenantId)"
 
 if ($scope -ne "Management Group") {
-    Write-Host "AZURE_SUBSCRIPTION_ID = $($subScope.Id)"
+    Write-Host "AZURE_SUBSCRIPTION_ID = $($assignmentScope.Id)"
 }
 
