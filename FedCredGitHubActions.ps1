@@ -4,11 +4,19 @@
 #
 # Although this script was designed for GitHub Actions it could very easily be repurposed for other purposes.
 #
-# Check if Az Powershell modules are installed and if not install them
- if ( -not (Get-Module Az.* -ListAvailable)){
-     Install-Module -Name Az -Repository PSGallery -Force
-     #Import-Module -Name Az
- }
+# Check if required Az Powershell modules are installed and if not install them
+# Define all required modules
+$modules = 'Az.Accounts', 'Az.Resources'
+
+# Find the that are already installed.
+$installed = @((Get-Module $modules -ListAvailable).Name | Select-Object -Unique)
+
+# Find the modules which ones aren't installed.
+$notInstalled = Compare-Object $modules $installed -PassThru
+
+if ($notInstalled) {
+    Install-Module -Scope CurrentUser $notInstalled
+}
 
 # This is the subject identifier and must match the "sub" claim within the token presented to Entra by the external identity provider.
 # This has no fixed format but for GitHub to trigger actions from a push or pull request to the "main" branch it would appear
