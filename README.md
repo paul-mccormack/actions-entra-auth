@@ -16,4 +16,8 @@ During execution you will be prompted to login to Azure in PowerShell, if not al
 
 If Resource Group is selected you will be prompted to select the subscription then enter the resource group name. Error handling is in place to catch typo's when entering the resource group name.  
 
+You will be prompted to choose the role for the role assignment from the following list of roles: ```PipelineAccess```, ```Owner``` and ```Contributor```.
+
+Owner and Contributor should be used with caution, especially in Production.  The PipelineAccess role is a custom role following the Microsoft recomendation in the Azure DevOps documentation.  See [link](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cazure-cli%2Cgithub-actions#create-a-service-principal-with-federated-credentials) for details of the role permissions.  This role allows the creation of resources but denys ```"Microsoft.Authorization/*/Delete"``` actions.  This includes the removal of management locks, deny assignments, policy assignments, role assignments and other highly privileged actions.  The json file to create this role is included in this repository, named [CustomRole.json](https://github.com/paul-mccormack/actions-entra-auth/blob/main/CustomRole.json).
+
 The values needed for ```AZURE_CLIENT_ID```, ```AZURE_TENANT_ID``` and ```AZURE_SUBSCRIPTION_ID``` are displayed after a successful run to be copied into your repository Actions Secrets section.  ```AZURE_SUBSCRIPTION_ID``` won't be output if the scope is a Management Group. Requiring the use of ```allow-no-subscriptions: true``` in the Azure Login action
