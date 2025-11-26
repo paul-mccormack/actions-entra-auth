@@ -17,11 +17,12 @@ $notInstalled = Compare-Object $modules $installed -PassThru
 if ($notInstalled) {
     Install-Module -Scope CurrentUser $notInstalled
 }
-
+Write-Host "`r"
 Write-Host "This script is intended to automate creation of a service principal, federated credentials and the required role assignment for deployments using GitHub Actions." -ForegroundColor Green
 Write-Host "The scope of the role assignment is selected during the script run." -ForegroundColor Green
 Write-Host "Ensure you have the required permissions over the target scope before you attempt to run the script." -ForegroundColor Green
 Write-Host "You will be prompted to enter the GitHub organization/user name, repository name, and branch name." -ForegroundColor Green
+Write-Host "`r"
 
 # This is the subject identifier and must match the "sub" claim within the token presented to Entra by the external identity provider.
 # This has no fixed format but for GitHub to trigger actions from a push or pull request to the "main" branch it would appear
@@ -63,7 +64,9 @@ $refrefsheads = ":ref:refs/heads" # PowerShell was being a bit weird with :ref:r
 
 $CredentialSubject = "repo:$orgName/$repoName$refrefsheads/$branchName"
 
+Write-Host "`r"
 Write-Host "Federated Credential Subject set to: $CredentialSubject" -ForegroundColor Green
+Write-Host "`r"
 
 # Prompt user to check the credential subject and continue or abort
 do {
@@ -78,7 +81,9 @@ do {
     }
 } until ($continue -eq 'Y')
 
+Write-Host "`r"
 Write-Host "Continuing with script execution..." -ForegroundColor Green
+Write-Host "`r"
 
 # External Idp issuing the token.  Must match the "issuer" claim of the token being presented to Entra
 # Currently set for GitHub Actions.
@@ -95,20 +100,22 @@ if (-not $context) {
 
 #Prompt for Deployment Scope
 function Get-Scope {
-    $type=Read-Host "
+    $scopeType = Read-Host "
     Choose deployment scope
     1 - Management Group
     2 - Subscription
     3 - Resource Group
     Enter number"
-    switch ($type) {
-        1 {$choice="Management Group"}
-        2 {$choice="Subscription"}
-        3 {$choice="Resource Group"}
+    switch ($scopeType) {
+        1 {$scopeChoice = "Management Group"}
+        2 {$scopeChoice = "Subscription"}
+        3 {$scopeChoice = "Resource Group"}
     }
-    return $choice
+    return $scopeChoice
 }
-$scope=Get-Scope
+$scope = Get-Scope
+
+Write-Host "`r"
 
 # Get Tenant ID
 $tenantId = (Get-AzContext).Tenant.Id
@@ -160,9 +167,11 @@ else {
     do {
         $rgExists = Get-AzResourceGroup -Name $scopeName -ErrorAction SilentlyContinue
         if ($rgExists) {
+            Write-Host "`r"
             Write-Host "Resource Group '$scopeName' exists" -ForegroundColor Green
             $validRg = $true
         } else {
+            Write-Host "`r"
             Write-Host "Resource Group '$scopeName' does not exist in subscription '$($subName.Name)'" -ForegroundColor Red
             $scopeName = Read-Host "Enter Resource Group Name"
             $validRg = $false
@@ -170,11 +179,31 @@ else {
     } until ($validRg)
 }
 
+Write-Host "`r"
+
 # Prompt for Service Principal Name
 $spName = Read-Host "Enter Service Principal Name"
 
-# Role Name for Role Assignment
-$roleName = Read-Host "Enter Role Name.  e.g Owner, Contributor"
+Write-Host "`r"
+
+# Prompt for Role Name for Role Assignment.
+function Get-Role {
+    $RoleType = Read-Host "
+    Choose Role Assignment
+    1 - PipelineAccess
+    2 - Owner
+    3 - Contributor
+    Enter number"
+    switch ($RoleType) {
+        1 {$RoleChoice = "PipelineAccess"}
+        2 {$RoleChoice = "Owner"}
+        3 {$RoleChoice = "Contributor"}
+    }
+    return $RoleChoice
+}
+$roleName = Get-Role
+
+Write-Host "`r"
 
 # Create Service Principal
 $sp = New-AzADServicePrincipal -DisplayName $spName
@@ -231,6 +260,7 @@ New-AzADAppFederatedCredential -ApplicationObjectId $appObjectId.Id -Audience ap
 Write-Host "Create the following in GitHub Actions Secrets and variables." -ForegroundColor Green
 Write-Host "If your deployment scope is a Management Group you do not need to create the AZURE_SUBSCRIPTION_ID secret and it will not be shown below." -ForegroundColor Green
 Write-Host "Make sure to set option 'allow-no-subscriptions: true' in azure/login@v2 action if you are deploying to a Management Group and not creating the AZURE_SUBSCRIPTION_ID secret." -ForegroundColor Green
+Write-Host "`r"
 Write-Host "-----------------------------------------------" -ForegroundColor Green
 Write-Host "AZURE_CLIENT_ID = $($sp.AppId)" -ForegroundColor Green
 Write-Host "AZURE_TENANT_ID = $($tenantId)" -ForegroundColor Green
@@ -239,4 +269,5 @@ if ($scope -ne "Management Group") {
     Write-Host "AZURE_SUBSCRIPTION_ID = $($assignmentScope.Id)" -ForegroundColor Green
 }
 Write-Host "-----------------------------------------------" -ForegroundColor Green
+Write-Host "`r"
 Write-Host "Script execution completed." -ForegroundColor Green

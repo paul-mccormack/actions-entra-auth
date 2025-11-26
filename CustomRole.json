@@ -1,0 +1,21 @@
+{
+    "properties": {
+        "roleName": "PipelineAccess",
+        "description": "This role is designed for CI Pipelines.  It allows all actions to be performed but denies 'Microsoft.Authorization/*/Delete'.  This is to ensure a service principal with this role can create and modify resources but cannot remove maangement locks, role assignments or policy assignments.  The full list of delete actions is detailed at this link: https://learn.microsoft.com/en-us/azure/role-based-access-control/permissions/management-and-governance#microsoftauthorization",
+        "assignableScopes": [
+            "/providers/Microsoft.Management/managementGroups/{mgId}"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "*"
+                ],
+                "notActions": [
+                    "Microsoft.Authorization/*/Delete"
+                ],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
