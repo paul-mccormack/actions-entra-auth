@@ -154,16 +154,20 @@ else {
         $subName = $subs[$selected - 1]
     }
     $scopeName = Read-Host "Enter Resource Group Name"
-    try {
-        $subScope = Get-AzSubscription -SubscriptionName $subName.Name  3> $null | Select-Object Id
-        Set-AzContext -SubscriptionId $subScope.Id 3> $null | Out-Null
-        Get-AzResourceGroup -Name $scopeName -ErrorAction stop | Out-Null
-        Write-Host "Resource Group exists" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Resource Group does not exist" -ForegroundColor Red
-        Break
-    }
+    $subScope = Get-AzSubscription -SubscriptionName $subName.Name  3> $null | Select-Object Id
+    Set-AzContext -SubscriptionId $subScope.Id 3> $null | Out-Null
+    
+    do {
+        $rgExists = Get-AzResourceGroup -Name $scopeName -ErrorAction SilentlyContinue
+        if ($rgExists) {
+            Write-Host "Resource Group '$scopeName' exists" -ForegroundColor Green
+            $validRg = $true
+        } else {
+            Write-Host "Resource Group '$scopeName' does not exist in subscription '$($subName.Name)'" -ForegroundColor Red
+            $scopeName = Read-Host "Enter Resource Group Name"
+            $validRg = $false
+        }
+    } until ($validRg)
 }
 
 # Prompt for Service Principal Name
