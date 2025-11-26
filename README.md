@@ -12,7 +12,7 @@ You will be prompted to enter the required information to build the federated cr
 
 Ensure you have the appropriate permissions at the deployment scope you are deploying too. So if you need to PIM to get that do it before running the script. The script will exit if the operator does not have the permissions to create a role assignment at the desired scope. This is to prevent creating a service principal and federated credential without the role assignment.
 
-During execution you will choose the scope for the role assignment, options are Management Group, Subscription and Resource Group.
+During execution you will be prompted to login to Azure in PowerShell, if not already logged in. You then choose the scope for the role assignment, options are Management Group, Subscription and Resource Group.
 
 If Resource Group is selected you will be prompted to select the subscription then enter the resource group name. Error handling is in place to catch typo's when entering the resource group name.  
 
