@@ -4,8 +4,8 @@
 #
 # Although this script was designed for GitHub Actions it could very easily be repurposed for other issuers that support Federated Credentials.
 #
-# Check if required Az Powershell modules are installed and if not install them
-# Define all required modules
+# Check if required Az Powershell modules are installed and if not install them.
+# Define all required modules.
 $modules = 'Az.Accounts', 'Az.Resources'
 
 # Find the that are already installed.
@@ -32,7 +32,7 @@ do {
     if ($orgName -match '^(?!-)(?!.*--)[a-zA-Z0-9-]{1,39}(?<!-)$') {
         $validOrg = $true
     } else {
-        Write-Host "Invalid organization/user name. Only alphanumeric characters and single hyphens are allowed, max 39 chars, cannot start/end with hyphen, no consecutive hyphens." -ForegroundColor Red
+        Write-Host "Invalid organization/user name. Only alphanumeric characters and single hyphens are allowed, max 39 chars, cannot start/end with hyphen." -ForegroundColor Red
         $validOrg = $false
     }
 } until ($validOrg)
@@ -59,15 +59,15 @@ do {
     }
 } until ($validBranch)
 
-$refrefsheads = ":ref:refs/heads" # PowerShell was being a bit weird with the variable when included in the string directly.
+$refrefsheads = ":ref:refs/heads" # PowerShell was being a bit weird with :ref:refs/heads when included directly in the string.
 
 $CredentialSubject = "repo:$orgName/$repoName$refrefsheads/$branchName"
 
 Write-Host "Federated Credential Subject set to: $CredentialSubject" -ForegroundColor Green
 
-# Prompt user to continue or abort
+# Prompt user to check the credential subject and continue or abort
 do {
-    $continue = Read-Host "check the federated credential subject above looks correct? 'repo:<org or username>/<repo name>:ref:refs/heads/<branch name>' you want to continue? (Y/N)"
+    $continue = Read-Host "check the federated credential subject above looks correct? Format should be: 'repo:<org or username>/<repo name>:ref:refs/heads/<branch name>'. Do you want to continue? (Y/N)"
     $continue = $continue.ToUpper()
     if ($continue -eq 'N') {
         Write-Host "Script aborted by user." -ForegroundColor Yellow
@@ -142,7 +142,7 @@ elseif ($scope -contains "Subscription") {
 }
 else {
     Write-Host "Subscription name which contains Resource Group" -ForegroundColor Green
-    $subs = Get-AzSubscription 3> $null | Select-Object Name        ## make this command not display output in terminal.  Replace 3> $null with | Out-Null.
+    $subs = Get-AzSubscription 3> $null | Select-Object Name
     for ($i = 0; $i -lt $subs.Count; $i++)
     {
         $j = $i + 1
