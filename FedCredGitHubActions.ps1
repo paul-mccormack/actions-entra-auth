@@ -1,8 +1,8 @@
-# Script prepared by Paul McCormack.  This script is intended to automate creation of a service principal, federated credentials and the required role assignment for
+# Script created by Paul McCormack.  This script is intended to automate creation of a service principal, federated credentials and the required role assignment for
 # deployments using GitHub Actions.  The scope of the role assignment is selected during the script run.  Ensure you have the required permissions over the
 # target scope before you attempt to run the script.
 #
-# Although this script was designed for GitHub Actions it could very easily be repurposed for other purposes.
+# Although this script was designed for GitHub Actions it could very easily be repurposed for other issuers that support Federated Credentials.
 #
 # Check if required Az Powershell modules are installed and if not install them
 # Define all required modules
@@ -67,7 +67,7 @@ Write-Host "Federated Credential Subject set to: $CredentialSubject" -Foreground
 
 # Prompt user to continue or abort
 do {
-    $continue = Read-Host "check the federated credential subjet above looks correct? 'repo:<org or username>/<repo name>:ref:refs/heads/<branch name>' you want to continue? (Y/N)"
+    $continue = Read-Host "check the federated credential subject above looks correct? 'repo:<org or username>/<repo name>:ref:refs/heads/<branch name>' you want to continue? (Y/N)"
     $continue = $continue.ToUpper()
     if ($continue -eq 'N') {
         Write-Host "Script aborted by user." -ForegroundColor Yellow
@@ -84,8 +84,14 @@ Write-Host "Continuing with script execution..." -ForegroundColor Green
 # Currently set for GitHub Actions.
 $CredentialIssuer = 'https://token.actions.githubusercontent.com'
 
-# Login to Azure
-Connect-AzAccount 3> $null
+# Check if already logged into Azure, if not, login
+$context = Get-AzContext -ErrorAction SilentlyContinue
+if (-not $context) {
+    Write-Host "Not logged into Azure. Please login..." -ForegroundColor Yellow
+    Connect-AzAccount 3> $null
+} else {
+    Write-Host "Already logged into Azure as $($context.Account.Id)" -ForegroundColor Green
+}
 
 #Prompt for Deployment Scope
 function Get-Scope {
@@ -136,7 +142,7 @@ elseif ($scope -contains "Subscription") {
 }
 else {
     Write-Host "Subscription name which contains Resource Group" -ForegroundColor Green
-    $subs = Get-AzSubscription 3> $null  | Select-Object Name        ## make this command not display output in terminal
+    $subs = Get-AzSubscription 3> $null | Select-Object Name        ## make this command not display output in terminal.  Replace 3> $null with | Out-Null.
     for ($i = 0; $i -lt $subs.Count; $i++)
     {
         $j = $i + 1
@@ -150,8 +156,8 @@ else {
     $scopeName = Read-Host "Enter Resource Group Name"
     try {
         $subScope = Get-AzSubscription -SubscriptionName $subName.Name  3> $null | Select-Object Id
-        Set-AzContext -SubscriptionId $subScope.Id 3> $null         ## make this command not display output in terminal
-        Get-AzResourceGroup -Name $scopeName -ErrorAction stop      ## make this command not display output in terminal
+        Set-AzContext -SubscriptionId $subScope.Id 3> $null | Out-Null
+        Get-AzResourceGroup -Name $scopeName -ErrorAction stop | Out-Null
         Write-Host "Resource Group exists" -ForegroundColor Green
     }
     catch {
@@ -181,6 +187,7 @@ if ($scope -contains "Management Group") {
     }
     catch {
         Write-Host "You do not have the required permissions to create a role assignment at this scope. Check your access on the IAM blade in the portal" -ForegroundColor Red
+        Write-Host "Script will now exit." -ForegroundColor Red
         Break
     }
 }
@@ -192,6 +199,7 @@ elseif ($scope -contains "Subscription") {
     }
     catch {
         Write-Host "You do not have the required permissions to create a role assignment at this scope. Check your access on the IAM blade in the portal" -ForegroundColor Red
+        Write-Host "Script will now exit." -ForegroundColor Red
         Break
     }
 }
@@ -203,6 +211,7 @@ else {
     }
     catch {
         Write-Host "You do not have the required permissions to create a role assignment at this scope. Check your access on the IAM blade in the portal" -ForegroundColor Red
+        Write-Host "Script will now exit." -ForegroundColor Red
         Break
     }
 }
