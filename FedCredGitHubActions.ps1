@@ -258,15 +258,18 @@ New-AzADAppFederatedCredential -ApplicationObjectId $appObjectId.Id -Audience ap
 # Output the information needed to setup GitHub Actions Secrets. Subscription is not required if the deployment scope is Management Group.
 
 Write-Host "Create the following in GitHub Actions Secrets and variables." -ForegroundColor Green
+Write-Host "AZURE_CLIENT_ID, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID are all well known secrets required for the 'azure/login@v2' action." -ForegroundColor Green
+Write-Host "AZURE_OBJECT_ID is included in the output in case it's required for other purposes." -ForegroundColor Green
 Write-Host "If your deployment scope is a Management Group you do not need to create the AZURE_SUBSCRIPTION_ID secret and it will not be shown below." -ForegroundColor Green
 Write-Host "Make sure to set option 'allow-no-subscriptions: true' in azure/login@v2 action if you are deploying to a Management Group and not creating the AZURE_SUBSCRIPTION_ID secret." -ForegroundColor Green
 Write-Host "`r"
 Write-Host "-----------------------------------------------" -ForegroundColor Green
-Write-Host "AZURE_CLIENT_ID = $($sp.AppId)" -ForegroundColor Green
-Write-Host "AZURE_TENANT_ID = $($tenantId)" -ForegroundColor Green
+Write-Host "Enterprise Application App Id: AZURE_CLIENT_ID = $($sp.AppId)" -ForegroundColor Green
+Write-Host "Enterprise Application Object Id: AZURE_OBJECT_ID = $($sp.Id)" -ForegroundColor Green
+Write-Host "Azure Tenant Id: AZURE_TENANT_ID = $($tenantId)" -ForegroundColor Green
 
 if ($scope -ne "Management Group") {
-    Write-Host "AZURE_SUBSCRIPTION_ID = $($assignmentScope.Id)" -ForegroundColor Green
+    Write-Host "Azure subscription Id picked during script execution: AZURE_SUBSCRIPTION_ID = $($assignmentScope.Id)" -ForegroundColor Green
 }
 Write-Host "-----------------------------------------------" -ForegroundColor Green
 Write-Host "`r"
